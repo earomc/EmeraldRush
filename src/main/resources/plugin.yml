@@ -4,3 +4,7 @@ main: net.earomc.emeraldrush.EmeraldRush
 authors: [earomc, Tiiita_]
 description: earomc's interpretation of the EmeraldRush gamemode
 website: earomc.net
+depend: [ ProtocolLib ]
+commands:
+  sps:
+  tm:

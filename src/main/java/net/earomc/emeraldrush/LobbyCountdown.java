@@ -10,10 +10,7 @@ public class LobbyCountdown {
     private final GameInstance gameInstance;
     private BukkitTask finalCountdownTask;
     private BukkitTask idleLoopTask;
-    private boolean idling = false; // is either idling or in final countdown.
     private int count = EmeraldRushConfig.FINAL_COUNTDOWN_SECONDS;
-
-
 
     public LobbyCountdown(Plugin plugin, GameInstance gameInstance) {
         this.plugin = plugin;
@@ -21,11 +18,10 @@ public class LobbyCountdown {
     }
 
     public void startFinalCountdown() {
-        if (idling) {
+        if (idleLoopTask != null) {
             idleLoopTask.cancel();
         }
         finalCountdownTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            idling = false;
             switch (count) {
                 case 2:
                 case 3:
@@ -40,7 +36,6 @@ public class LobbyCountdown {
                     Bukkit.broadcastMessage("§cGame is starting in §b1 §csecond");
                     break;
                 case 0: {
-                    // todo: check if teams can be
                     if (gameInstance.assignPlayersToTeams()) {
                         gameInstance.setPhase(Phase.IN_GAME);
                         finalCountdownTask.cancel();
@@ -55,11 +50,11 @@ public class LobbyCountdown {
         }, 0L, 20L);
     }
     public void startIdleLoop() {
-        if (!idling) {
-            finalCountdownTask.cancel();;
+        if (finalCountdownTask != null) {
+            finalCountdownTask.cancel();
         }
-        idleLoopTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            idling = true;
+        this.idleLoopTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            Bukkit.broadcastMessage(EmeraldRushConfig.MIN_PLAYERS - gameInstance.getPlayers().size() + " players missing to start");
         }, 0L, EmeraldRushConfig.IDLE_LOOP_DURATION_SECONDS * 20L);
     }
 }
