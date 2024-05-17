@@ -4,6 +4,7 @@ import net.earomc.emeraldrush.util.area.Area;
 import net.earomc.emeraldrush.util.area.BoxArea;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.WorldCreator;
 
 import java.util.Arrays;
@@ -17,9 +18,10 @@ public class MapManager {
     public MapManager() {
         //TODO: Select maps from config or smth...
 
-        Bukkit.createWorld(new WorldCreator("ingame"));
-        Bukkit.createWorld(new WorldCreator("lobby"));
+        World ingameWorld = Bukkit.createWorld(new WorldCreator("ingame"));
+        ingameWorld.setGameRuleValue("doDaylightCycle", "false");
 
+        Bukkit.createWorld(new WorldCreator("lobby"));
 
         //TODO: Remove debug msg
         Bukkit.getWorlds().forEach(world -> System.out.println(world.getName()));
@@ -32,8 +34,8 @@ public class MapManager {
         Location spawnLocationTeam1 = createIgLoc(5.5, 10.5, 15.5, -180);
         Location spawnLocationTeam2 = createIgLoc(-4.5, 10.5, -14.5, 0);
 
-        Location lifeBlockLocation1 = createIgLoc(0.5, 10.5, 15.5);
-        Location lifeBlockLocation2 = createIgLoc(0.5, 10.5, -14.5);
+        Location lifeBlockLocation1 = createIgLoc(0, 10, 15);
+        Location lifeBlockLocation2 = createIgLoc(0, 10, -15);
 
         Area emeraldDepositArea1 = new BoxArea(-1, 10, 14, 1, 15, 16);
         Area emeraldDepositArea2 = new BoxArea(1, 10, -14, -1, 15, -16);

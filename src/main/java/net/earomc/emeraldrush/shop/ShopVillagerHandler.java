@@ -1,20 +1,22 @@
 package net.earomc.emeraldrush.shop;
 
 import net.earomc.emeraldrush.GameInstance;
+import net.earomc.emeraldrush.items.impl.DefaultSpecialItems;
 import net.earomc.emeraldrush.team.Team;
 import net.earomc.emeraldrush.util.InventoryUtil;
 import net.earomc.emeraldrush.util.ItemBuilder;
 import net.earomc.emeraldrush.util.PlayerItemOverflowQueueManager;
 import net.earomc.emeraldrush.util.gui.inventory.ChestGui;
 import net.earomc.emeraldrush.util.gui.inventory.InventoryGui;
-import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -33,14 +35,26 @@ public class ShopVillagerHandler implements Listener {
     }
 
     @EventHandler
+    public void onVillagerDamage(EntityDamageEvent event) {
+        Entity entity = event.getEntity();
+        if (entity == null) return;
+        String customName = entity.getCustomName();
+        if (customName == null) return;
+        if (customName.equals(ShopVillager.CUSTOM_NAME)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
     public void onInteract(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
-        player.sendMessage("Interacting with " + event.getRightClicked());
+        Entity rightClicked = event.getRightClicked();
+        String rcCustomName = rightClicked.getCustomName();
         if (!gameInstance.getPlayers().contains(player)) return;
+        if (!(rcCustomName != null && rcCustomName.equals(ShopVillager.CUSTOM_NAME))) return;
         Team team = gameInstance.getTeam(player);
         if (team == null) return;
         event.setCancelled(true);
-
         InventoryGui gui = ChestGui.fromRows("§7Shop", 6);
         gui.fill(new ItemBuilder(Material.STAINED_GLASS_PANE).durability(15).build());
         int emeralds = InventoryUtil.countEmeralds(player.getInventory());
@@ -60,9 +74,9 @@ public class ShopVillagerHandler implements Listener {
         ItemStack goldenApple = new ItemStack(Material.GOLDEN_APPLE);
         gui.setClickable(10, f.createShopItem("§e§lGolden Apple", goldenApple, 1, goldenApple.clone()));
         ItemStack fireball = new ItemStack(Material.FIREBALL);
-        gui.setClickable(11, f.createShopItem("§e§lFireball", fireball, 2, fireball.clone()));
-        ItemStack tnt = new ItemStack(Material.TNT);
-        gui.setClickable(12, f.createShopItem("§e§lTNT", tnt, 1, tnt.clone()));
+        gui.setClickable(11, f.createShopItem("§e§lFireball", fireball, 2, DefaultSpecialItems.FIREBALL));
+
+        gui.setClickable(12, f.createShopItem("§e§lTNT", new ItemStack(Material.TNT), 1, DefaultSpecialItems.TNT));
         ItemStack snowball = new ItemStack(Material.SNOW_BALL);
         gui.setClickable(13, f.createShopItem("§e§lSnowball", snowball, 2, snowball.clone()));
         ItemStack enderPearl = new ItemStack(Material.ENDER_PEARL);
@@ -87,7 +101,7 @@ public class ShopVillagerHandler implements Listener {
 
         ItemStack kbStick = new ItemBuilder(Material.STICK).enchant(Enchantment.KNOCKBACK, 2).build();
         gui.setClickable(22, f.createShopItem("§e§lKnockback Stick", new ItemStack(Material.STICK), 2, kbStick));
-        gui.setClickable(23, f.createShopItem("§e§lInsta-Boom TNT", new ItemStack(Material.TNT), 1));
+        gui.setClickable(23, f.createShopItem("§e§lInsta-Boom TNT", new ItemStack(Material.TNT), 1, DefaultSpecialItems.INSTA_BOOM_TNT));
 
         ItemStack bowIcon = new ItemBuilder(Material.BOW).enchant(Enchantment.ARROW_DAMAGE, 1).hideEnchants().build();
         ItemStack bow = new ItemBuilder(Material.BOW).enchant(Enchantment.ARROW_DAMAGE, 1).unbreakable().build();
@@ -98,21 +112,25 @@ public class ShopVillagerHandler implements Listener {
 
         ItemStack speedPot = new ItemBuilder.PotionBuilder(PotionType.SPEED)
                 .addEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 45, 2, false, true))
+                .hideAttributes()
                 .build();
         gui.setClickable(37, f.createShopItem("§e§lSpeed II Potion §r§7(45s)", speedPot, 2, speedPot.clone()));
 
         ItemStack jumpPot = new ItemBuilder.PotionBuilder(PotionType.JUMP)
                 .addEffect(new PotionEffect(PotionEffectType.JUMP, 20 * 45, 5, false, true))
+                .hideAttributes()
                 .build();
         gui.setClickable(38, f.createShopItem("§e§lJump V Potion §r§7(45s)", jumpPot, 2, jumpPot.clone()));
 
         ItemStack invisPot = new ItemBuilder.PotionBuilder(PotionType.INVISIBILITY)
                 .addEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 30, 1, false, true))
+                .hideAttributes()
                 .build();
         gui.setClickable(39, f.createShopItem("§e§lInvisibility Potion §r§7(30s)", invisPot, 2, invisPot.clone()));
 
         ItemStack damagePot = new ItemBuilder.PotionBuilder(PotionType.INSTANT_DAMAGE)
                 .splash()
+                .hideAttributes()
                 .build();
         gui.setClickable(40, f.createShopItem("§e§lDamage Potion", damagePot, 2, damagePot.clone()));
 

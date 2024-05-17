@@ -1,17 +1,21 @@
 package net.earomc.emeraldrush.team;
 
+import net.earomc.emeraldrush.events.LivesUpdateEvent;
 import net.earomc.emeraldrush.util.InventoryUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.earomc.emeraldrush.config.EmeraldRushConfig.MAX_LIVES;
+import static net.earomc.emeraldrush.config.EmeraldRushConfig.START_LIVES;
+
 public class Team {
-    private List<Player> players = new ArrayList<>();
+    private final List<Player> players = new ArrayList<>();
     private int size;
-    private int lives;
+    private int lives = START_LIVES;
 
     public Team(int size) {
         this.size = size;
@@ -28,9 +32,18 @@ public class Team {
      * Can be negative to subtract lives.
      *
      * @param lives
+     * @return On trying to add lives, how many lives there were above the max lives.
      */
-    public void addLives(int lives) {
-        this.lives += lives;
+    public int addLives(int lives) {
+        int before = this.lives;
+        int newLives = this.lives + lives;
+        if (newLives <= MAX_LIVES) {
+            this.lives = newLives;
+            Bukkit.getPluginManager().callEvent(new LivesUpdateEvent(this, before, this.lives));
+            return 0;
+        } else {
+            return newLives - MAX_LIVES;
+        }
     }
 
     /**
@@ -69,5 +82,9 @@ public class Team {
     public enum PlayerAddResult {
         FAIL_TEAM_FULL,
         SUCCESS
+    }
+
+    public int getSize() {
+        return size;
     }
 }

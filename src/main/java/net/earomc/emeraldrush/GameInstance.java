@@ -6,11 +6,13 @@ import net.earomc.emeraldrush.map.handlers.EmeraldSpawnerHandler;
 import net.earomc.emeraldrush.scoreboard.impl.InGameScoreboard;
 import net.earomc.emeraldrush.scoreboard.impl.InGameScoreboardManager;
 import net.earomc.emeraldrush.team.Team;
+import net.earomc.emeraldrush.util.firework.FireworkSpawner;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameInstance {
     private final ArrayList<Player> players = new ArrayList<>();
@@ -39,6 +41,7 @@ public class GameInstance {
 
     /**
      * Splits the players evenly into the teams.
+     *
      * @return Returns false if the players could not be split evenly
      */
     public boolean assignPlayersToTeams() {
@@ -114,6 +117,14 @@ public class GameInstance {
                 });
                 emeraldSpawnerHandler.startSpawning();
                 break;
+            case WINNING:
+                Bukkit.getScheduler()
+                        .runTaskLater(
+                                EmeraldRush.instance(),
+                                () -> Bukkit.getServer().shutdown(),
+                                20L * 5
+                        );
+                break;
             default:
                 //
         }
@@ -132,6 +143,12 @@ public class GameInstance {
         throw new IllegalStateException("Player " + player.getName() + " should be in a team");
     }
 
+    public boolean isTeam1(Team team) {
+        if (team == team1) return true;
+        if (team == team2) return false;
+        throw new IllegalArgumentException("Unregistered team " + team);
+    }
+
     public Team getTeam1() {
         return team1;
     }
@@ -142,5 +159,18 @@ public class GameInstance {
 
     public LobbyCountdown getLobbyCountdown() {
         return lobbyCountdown;
+    }
+
+    public void win(Team team) {
+        FireworkSpawner fireworkSpawner = new FireworkSpawner(EmeraldRush.instance());
+        for (Player player : team.getPlayers()) {
+            fireworkSpawner.spawnRandomFireworks(player.getLocation(), 5, 15);
+        }
+        if (team.getSize() > 1) {
+            Bukkit.broadcastMessage("§aTeam " + (isTeam1(team) ? "1" : "2") + " has won the game!");
+        } else {
+            Bukkit.broadcastMessage("§a" + team.getPlayers().get(0).getName() + " has won the game!");
+        }
+        setPhase(Phase.WINNING);
     }
 }

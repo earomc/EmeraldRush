@@ -1,10 +1,10 @@
 package net.earomc.emeraldrush;
 
 import net.earomc.emeraldrush.config.EmeraldRushConfig;
+import net.earomc.emeraldrush.events.LivesUpdateEvent;
 import net.earomc.emeraldrush.loadouts.LoadOutLobby;
 import net.earomc.emeraldrush.loadouts.LoadOutTeam;
 import net.earomc.emeraldrush.map.MapManager;
-import net.earomc.emeraldrush.util.LoadOut;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -22,8 +23,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import java.util.Arrays;
 
 public class PlayerListener implements Listener {
 
@@ -112,8 +111,15 @@ public class PlayerListener implements Listener {
         inventory.setContents(new ItemStack[]{});
         player.sendMessage("§aRespawning in "+ respawnDelaySeconds + " seconds");
 
+        boolean inTeam1 = gameInstance.inTeam1(player);
+
+        if (inTeam1) {
+            gameInstance.getTeam1().addLives(-1);
+        } else {
+            gameInstance.getTeam2().addLives(-1);
+        }
+
         Bukkit.getScheduler().runTaskLater(EmeraldRush.instance(), () -> {
-            boolean inTeam1 = gameInstance.inTeam1(player);
             new LoadOutTeam(inTeam1).load(player, true);
             teleportToTeamSpawn(player, inTeam1);
         }, respawnDelaySeconds * 20L);
@@ -133,6 +139,19 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player entity = event.getPlayer();
+    }
+
+    @EventHandler
+    public void onLivesUpdate(LivesUpdateEvent event) {
+        if (event.getNow() <= 0 && gameInstance.getCurrentPhase() != Phase.WINNING) {
+            gameInstance.win(event.getTeam());
+        }
+    }
+
+    @EventHandler
+    public void onHunger(FoodLevelChangeEvent event) {
+        event.setCancelled(true);
+        event.setFoodLevel(20);
     }
 
 }

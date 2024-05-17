@@ -7,6 +7,7 @@ import org.bukkit.entity.Villager;
 import java.util.UUID;
 
 public class ShopVillager {
+    public static final String CUSTOM_NAME = "§e§lShop";
     private final Location location;
     private Villager villager;
 
@@ -18,7 +19,7 @@ public class ShopVillager {
         villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
         villager.setAdult();
         villager.setProfession(Villager.Profession.PRIEST);
-        villager.setCustomName("§e§lShop");
+        villager.setCustomName(CUSTOM_NAME);
         villager.setCustomNameVisible(true);
         villager.setCanPickupItems(false);
         System.out.println("Spawning shop villager at " + location.toString());

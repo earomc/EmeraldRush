@@ -1,5 +1,6 @@
 package net.earomc.emeraldrush.map;
 
+import net.earomc.emeraldrush.config.EmeraldRushConfig;
 import net.earomc.emeraldrush.shop.ShopVillager;
 import net.earomc.emeraldrush.util.area.Area;
 import org.bukkit.Location;
@@ -84,7 +85,8 @@ public class InGameMap {
         new ShopVillager(shopLocation1).spawn();
         new ShopVillager(shopLocation2).spawn();
 
-        //TODO: Set up life blocks
+        lifeBlock1.setBlock(EmeraldRushConfig.START_LIVES);
+        lifeBlock2.setBlock(EmeraldRushConfig.START_LIVES);
     }
 
     public Area getBound() {

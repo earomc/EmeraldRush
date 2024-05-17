@@ -22,7 +22,7 @@ public class EmeraldSpawnerHandler {
             for (EmeraldSpawner spawner : emeraldSpawners) {
                 spawner.spawnEmerald();
             }
-        }, 20L * 10, 20L * 10);
+        }, 20L * 15, 20L * 15);
     }
 
     public void stopSpawning() {

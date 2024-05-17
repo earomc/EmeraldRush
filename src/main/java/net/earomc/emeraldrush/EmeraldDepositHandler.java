@@ -13,6 +13,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.PlayerInventory;
 
+import static net.earomc.emeraldrush.config.EmeraldRushConfig.MAX_LIVES;
+
 public class EmeraldDepositHandler implements Listener {
 
     private final InGameMap inGameMap;
@@ -46,8 +48,9 @@ public class EmeraldDepositHandler implements Listener {
         PlayerInventory inventory = player.getInventory();
         int lives = InventoryUtil.countEmeralds(inventory);
         if (lives > 0) {
-            inventory.remove(Material.EMERALD);
-            team.addLives(lives);
+            int emeraldsDeposited = InventoryUtil.removeItemsFromInventory(inventory, Math.min(lives, MAX_LIVES),
+                    itemStack -> itemStack != null && itemStack.getType() == Material.EMERALD);
+            team.addLives(emeraldsDeposited);
             player.sendMessage(ChatColor.GREEN + "Deposited " + lives + " emeralds!");
         }
     }
