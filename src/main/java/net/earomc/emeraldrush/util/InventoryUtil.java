@@ -43,22 +43,24 @@ public class InventoryUtil {
      * @return Returns how many items it removed from the inventory.
      */
     public static int removeItemsFromInventory(Inventory inventory, int amountToRemove, Predicate<ItemStack> predicate) {
-        HashMap<Integer, ItemStack> slotsWithItem = new HashMap<>();
+        HashMap<Integer, ItemStack> slotsToStack = new HashMap<>();
+        // create slot to item map of given inventory.
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack item = inventory.getItem(i);
             if (predicate.test(item)) {
-                slotsWithItem.put(i, item);
+                slotsToStack.put(i, item);
             }
         }
+
         int itemsRemoved = 0;
-        for (Map.Entry<Integer, ItemStack> entry : slotsWithItem.entrySet()) {
-            ItemStack item = entry.getValue();
-            int slot = entry.getKey();
-            int amount = item.getAmount();
-            int newAmount = amount - amountToRemove;
+        for (Map.Entry<Integer, ItemStack> slotToStack : slotsToStack.entrySet()) {
+            ItemStack stack = slotToStack.getValue();
+            int slot = slotToStack.getKey();
+            int currentStackAmount = stack.getAmount();
+            int newAmount = currentStackAmount - amountToRemove;
             if (newAmount > 0) {
-                item.setAmount(newAmount);
-                inventory.setItem(slot, item);
+                stack.setAmount(newAmount);
+                inventory.setItem(slot, stack);
                 itemsRemoved += amountToRemove;
                 return itemsRemoved;
             } else {

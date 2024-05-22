@@ -8,6 +8,8 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.function.Supplier;
+
 public class FireworkSpawner {
     private final Plugin plugin;
     private final RandomFireworkGenerator randomFireworkGenerator;
@@ -28,13 +30,13 @@ public class FireworkSpawner {
         firework.setFireworkMeta(fireworkMeta);
     }
 
-    public void spawnRandomFireworks(Location location, int amount, int delayTicks) {
+    public void spawnRandomFireworks(Supplier<Location> location, int amount, int delayTicks) {
         spawnTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (counter >= amount) {
                 spawnTask.cancel();
                 counter = 0;
             }
-            spawnRandomFirework(location);
+            spawnRandomFirework(location.get());
             counter++;
         }, delayTicks, delayTicks);
     }

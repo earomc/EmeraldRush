@@ -1,6 +1,8 @@
 package net.earomc.emeraldrush;
 
 import net.earomc.emeraldrush.loadouts.LoadOutTeam;
+import net.earomc.emeraldrush.map.InGameMap;
+import net.earomc.emeraldrush.map.LifeBlock;
 import net.earomc.emeraldrush.map.MapManager;
 import net.earomc.emeraldrush.map.handlers.EmeraldSpawnerHandler;
 import net.earomc.emeraldrush.scoreboard.impl.InGameScoreboard;
@@ -97,8 +99,11 @@ public class GameInstance {
                 lobbyCountdown.startIdleLoop();
                 break;
             case IN_GAME:
+                InGameMap inGameMap = mapManager.getInGameMap();
                 Bukkit.getScheduler().runTaskLater(EmeraldRush.instance(), () -> {
-                    mapManager.getInGameMap().setup();
+                    inGameMap.setup();
+                    team1.setLifeBlock(inGameMap.getLifeBlock1());
+                    team2.setLifeBlock(inGameMap.getLifeBlock2());
                 }, 20 * 1L);
 
                 // tp players to arena
@@ -108,12 +113,12 @@ public class GameInstance {
                 team1.getPlayers().forEach(player -> {
                     inGameScoreboardManager.setScoreboard(player, new InGameScoreboard(team1));
                     loadOutTeam1.load(player, true);
-                    player.teleport(mapManager.getInGameMap().getSpawnLocationTeam1());
+                    player.teleport(inGameMap.getSpawnLocationTeam1());
                 });
                 team2.getPlayers().forEach(player -> {
                     inGameScoreboardManager.setScoreboard(player, new InGameScoreboard(team2));
                     loadOutTeam2.load(player, true);
-                    player.teleport(mapManager.getInGameMap().getSpawnLocationTeam2());
+                    player.teleport(inGameMap.getSpawnLocationTeam2());
                 });
                 emeraldSpawnerHandler.startSpawning();
                 break;
@@ -135,6 +140,12 @@ public class GameInstance {
         if (team1.getPlayers().contains(player)) return team1;
         if (team2.getPlayers().contains(player)) return team2;
         return null;
+    }
+
+    public Team getOpponentTeam(Team team) {
+        if (team == team1) return team2;
+        if (team == team2) return team1;
+        throw new IllegalArgumentException("Invalid team. " + team);
     }
 
     public boolean inTeam1(Player player) {
@@ -164,7 +175,7 @@ public class GameInstance {
     public void win(Team team) {
         FireworkSpawner fireworkSpawner = new FireworkSpawner(EmeraldRush.instance());
         for (Player player : team.getPlayers()) {
-            fireworkSpawner.spawnRandomFireworks(player.getLocation(), 5, 15);
+            fireworkSpawner.spawnRandomFireworks(player::getLocation, 5, 15);
         }
         if (team.getSize() > 1) {
             Bukkit.broadcastMessage("§aTeam " + (isTeam1(team) ? "1" : "2") + " has won the game!");
@@ -172,5 +183,15 @@ public class GameInstance {
             Bukkit.broadcastMessage("§a" + team.getPlayers().get(0).getName() + " has won the game!");
         }
         setPhase(Phase.WINNING);
+    }
+
+    public LifeBlock getLifeBlock(Team team) {
+        if (team == team1) return mapManager.getInGameMap().getLifeBlock1();
+        if (team == team2) return mapManager.getInGameMap().getLifeBlock2();
+        throw new IllegalArgumentException("Invalid team. " + team);
+    }
+
+    public MapManager getMapManager() {
+        return mapManager;
     }
 }

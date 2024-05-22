@@ -1,19 +1,23 @@
 package net.earomc.emeraldrush.util.area;
 
-import org.bukkit.Location;
+import org.bukkit.util.Vector;
 
 public class SphericalArea implements Area {
-    private final Location center;
+    private final Vector center;
     private final int radius;
 
-    public SphericalArea(Location center, int radius) {
+    public SphericalArea(Vector center, int radius) {
         this.center = center;
         this.radius = radius;
     }
 
     @Override
-    public boolean isInside(Location location) {
+    public boolean isInside(Vector location) {
         return location.distance(center) <= radius;
     }
 
+    @Override
+    public Vector getCenter() {
+        return center;
+    }
 }

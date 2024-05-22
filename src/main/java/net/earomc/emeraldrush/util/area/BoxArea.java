@@ -1,7 +1,6 @@
 package net.earomc.emeraldrush.util.area;
 
 import net.earomc.emeraldrush.util.Box;
-import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 public class BoxArea implements Area {
@@ -15,12 +14,17 @@ public class BoxArea implements Area {
         this.box = new Box(location1, location2);
     }
 
+    @Override
+    public Vector getCenter() {
+        return box.getCenter();
+    }
+
     public BoxArea(double x1, double y1, double z1, double x2, double y2, double z2) {
         this.box = new Box(new Vector(x1, y1, z1), new Vector(x2, y2, z2));
     }
 
     @Override
-    public boolean isInside(Location location) {
-        return box.isInside(location);
+    public boolean isInside(Vector vector) {
+        return box.isInside(vector);
     }
 }

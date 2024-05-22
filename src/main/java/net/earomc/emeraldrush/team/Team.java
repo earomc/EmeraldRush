@@ -1,28 +1,33 @@
 package net.earomc.emeraldrush.team;
 
 import net.earomc.emeraldrush.events.LivesUpdateEvent;
+import net.earomc.emeraldrush.map.LifeBlock;
 import net.earomc.emeraldrush.util.InventoryUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static net.earomc.emeraldrush.config.EmeraldRushConfig.MAX_LIVES;
 import static net.earomc.emeraldrush.config.EmeraldRushConfig.START_LIVES;
 
 public class Team {
     private final List<Player> players = new ArrayList<>();
+    private final Set<Player> deadPlayers = new HashSet<>(); // players that are dead. not being able to respawn.
     private int size;
     private int lives = START_LIVES;
-
     public Team(int size) {
         this.size = size;
     }
 
     public Team() {
     }
+
+    private LifeBlock lifeBlock;
 
     public void setSize(int size) {
         this.size = size;
@@ -37,13 +42,20 @@ public class Team {
     public int addLives(int lives) {
         int before = this.lives;
         int newLives = this.lives + lives;
-        if (newLives <= MAX_LIVES) {
+        if (newLives <= MAX_LIVES && newLives >= 0) {
             this.lives = newLives;
+            this.lifeBlock.setLives(this.lives);
             Bukkit.getPluginManager().callEvent(new LivesUpdateEvent(this, before, this.lives));
             return 0;
         } else {
             return newLives - MAX_LIVES;
         }
+    }
+
+    public void setDead(Player player) {
+        if (players.contains(player)) {
+            this.deadPlayers.add(player);
+        } else throw new IllegalArgumentException("Player is not part of the team and therefore cannot be set dead for this team.");
     }
 
     /**
@@ -86,5 +98,21 @@ public class Team {
 
     public int getSize() {
         return size;
+    }
+
+    public LifeBlock getLifeBlock() {
+        return lifeBlock;
+    }
+
+    public void setLifeBlock(LifeBlock lifeBlock) {
+        this.lifeBlock = lifeBlock;
+    }
+
+    public boolean isAllDead() {
+        return this.players.size() == this.deadPlayers.size();
+    }
+
+    public boolean isDead(Player player) {
+        return this.deadPlayers.contains(player);
     }
 }

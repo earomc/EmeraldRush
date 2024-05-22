@@ -16,4 +16,8 @@ public class EmeraldSpawner {
     public void spawnEmerald() {
         Entity entity = location.getWorld().dropItemNaturally(location, new ItemStack(Material.EMERALD));
     }
+
+    public Location getLocation() {
+        return location;
+    }
 }

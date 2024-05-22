@@ -41,23 +41,26 @@ public final class EmeraldRush extends JavaPlugin {
 
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new PlayerListener(gameInstance, mapManager), this);
-        pluginManager.registerEvents(new LifeBlockHandler(inGameMap.getLifeBlock1(), inGameMap.getLifeBlock2(), gameInstance), this);
+        pluginManager.registerEvents(new LifeBlockHandler(gameInstance), this);
         pluginManager.registerEvents(new InventoryGuiListener(), this);
         pluginManager.registerEvents(itemOverflowQueueManager, this);
         pluginManager.registerEvents(new ShopVillagerHandler(gameInstance, itemOverflowQueueManager), this);
         pluginManager.registerEvents(new EmeraldDepositHandler(inGameMap, gameInstance), this);
         pluginManager.registerEvents(new WorldEventsHandler(), this);
         pluginManager.registerEvents(new BlockBreakPlaceHandler(gameInstance), this);
+        pluginManager.registerEvents(emeraldSpawnerHandler, this);
+
+        SpecialItemRegistry specialItemRegistry = new SpecialItemRegistry();
+        SpecialItemHandler specialItemHandler = new SpecialItemHandler(specialItemRegistry);
+        pluginManager.registerEvents(specialItemHandler, this);
+        new DefaultSpecialItems(specialItemRegistry).register();
 
         //TODO: remove dbg commands
         getCommand("sps").setExecutor(new SpawnShopVillagerCommand());
         getCommand("tm").setExecutor(new TeamCommand(gameInstance));
 
-        SpecialItemRegistry specialItemRegistry = new SpecialItemRegistry();
-        SpecialItemHandler specialItemHandler = new SpecialItemHandler(specialItemRegistry);
-        pluginManager.registerEvents(specialItemHandler, this);
 
-        new DefaultSpecialItems(specialItemRegistry).register();
+
 
     }
 

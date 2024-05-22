@@ -1,10 +1,12 @@
 package net.earomc.emeraldrush.util.area;
 
-import org.bukkit.Location;
+import org.bukkit.util.Vector;
+
 
 public interface Area {
-    boolean isInside(Location location);
-    default boolean isOutside(Location location) {
-        return !isInside(location);
+    boolean isInside(Vector vector);
+    Vector getCenter();
+    default boolean isOutside(Vector vector) {
+        return !isInside(vector);
     }
 }

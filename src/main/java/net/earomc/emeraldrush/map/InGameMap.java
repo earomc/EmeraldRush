@@ -2,8 +2,11 @@ package net.earomc.emeraldrush.map;
 
 import net.earomc.emeraldrush.config.EmeraldRushConfig;
 import net.earomc.emeraldrush.shop.ShopVillager;
+import net.earomc.emeraldrush.team.Team;
 import net.earomc.emeraldrush.util.area.Area;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +27,8 @@ public class InGameMap {
     private final Location shopLocation2;
 
     private final Area bound;
+
+    private final World world;
 
     public InGameMap(List<Location> emeraldSpawns,
                      Location spawnLocationTeam1,
@@ -51,6 +56,8 @@ public class InGameMap {
         this.shopLocation2 = shopLocation2;
 
         this.bound = bound;
+
+        this.world = spawnLocationTeam1.getWorld();
     }
 
     public List<EmeraldSpawner> getEmeraldSpawners() {
@@ -91,5 +98,20 @@ public class InGameMap {
 
     public Area getBound() {
         return bound;
+    }
+
+    @Nullable
+    public LifeBlock getLifeBlock(Location location) {
+        if (lifeBlock1.getLocation().equals(location)) {
+            return lifeBlock1;
+        }
+        if (lifeBlock2.getLocation().equals(location)) {
+            return lifeBlock2;
+        }
+        return null;
+    }
+
+    public World getWorld() {
+        return world;
     }
 }

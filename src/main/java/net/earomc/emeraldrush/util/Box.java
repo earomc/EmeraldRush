@@ -24,6 +24,10 @@ public class Box {
         //System.out.println("Box: " + xMin + "," + yMin+ "," + zMin + " / " + xMax+ "," + yMax+ "," + zMax);
     }
 
+    public Vector getCenter() {
+        return new Vector(xMin + ((xMax - xMin) / 2), yMin + ((yMax - yMin) / 2), zMin + ((zMax - zMin) / 2));
+    }
+
     public boolean isInside(Location location) {
         return isInside(location.getX(), location.getY(), location.getZ());
     }

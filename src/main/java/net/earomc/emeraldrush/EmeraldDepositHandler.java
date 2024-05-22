@@ -4,6 +4,7 @@ import net.earomc.emeraldrush.map.InGameMap;
 import net.earomc.emeraldrush.team.Team;
 import net.earomc.emeraldrush.util.InventoryUtil;
 import net.earomc.emeraldrush.util.area.Area;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,22 +37,25 @@ public class EmeraldDepositHandler implements Listener {
         Area depositArea1 = inGameMap.getEmeraldDepositArea1();
         Area depositArea2 = inGameMap.getEmeraldDepositArea2();
 
-        if (depositArea1.isInside(locTo) && depositArea1.isOutside(locFrom) && team1.getPlayers().contains(player)) {
+        if (depositArea1.isInside(locTo.toVector()) && depositArea1.isOutside(locFrom.toVector()) && team1.getPlayers().contains(player)) {
             depositEmeralds(player, team1);
         }
-        if (depositArea2.isInside(locTo) && depositArea2.isOutside(locFrom) && team2.getPlayers().contains(player)) {
+        if (depositArea2.isInside(locTo.toVector()) && depositArea2.isOutside(locFrom.toVector()) && team2.getPlayers().contains(player)) {
             depositEmeralds(player, team2);
         }
     }
 
     private void depositEmeralds(Player player, Team team) {
         PlayerInventory inventory = player.getInventory();
-        int lives = InventoryUtil.countEmeralds(inventory);
-        if (lives > 0) {
-            int emeraldsDeposited = InventoryUtil.removeItemsFromInventory(inventory, Math.min(lives, MAX_LIVES),
+        int emeralds = InventoryUtil.countEmeralds(inventory);
+        int emeraldsToDeposit = Math.max(0, Math.min(MAX_LIVES - team.getLives(), emeralds));
+        if (emeraldsToDeposit > 0) {
+
+            int emeraldsDeposited = InventoryUtil.removeItemsFromInventory(inventory, emeraldsToDeposit,
                     itemStack -> itemStack != null && itemStack.getType() == Material.EMERALD);
             team.addLives(emeraldsDeposited);
-            player.sendMessage(ChatColor.GREEN + "Deposited " + lives + " emeralds!");
+            player.sendMessage(ChatColor.GREEN + "Deposited " + emeraldsDeposited + " emeralds!");
+            Bukkit.broadcastMessage("Team " + (gameInstance.isTeam1(team) ? "1" : "2") + " has " + team.getLives() + " lives.");
         }
     }
 }
